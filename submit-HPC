@@ -1,0 +1,50 @@
+#!/bin/bash
+
+#$ -N test
+#$ -S /bin/bash
+#$ -cwd
+#$ -q IHPC
+#$ -pe 16cpn 16
+
+#Print information from the job into the output file
+/bin/echo ##########################################################################################
+/bin/echo Running on host: `hostname`. Starting on: `date`
+/bin/echo In directory: `pwd`
+/bin/echo ##########################################################################################
+##########################################################################################
+
+code=./md
+infile=confin.gro
+outfile=out.gro
+number_of_steps=100000
+n_print_steps=100
+n_threads=16
+
+if [ ! -e $infile ]; then 
+	echo -e "\ninput file $infile not found.\n"
+	exit 1
+fi
+
+if [ -e $outfile ]; then
+	rm -f $outfile
+fi
+
+if [ ! -d $n_threads ]; then
+    mkdir $n_threads
+fi
+
+cd $n_threads
+cp ../$code .
+cp ../$infile .
+
+if [ -e "out*" ]; then
+    rename out out0 out*
+fi
+
+$code $infile $outfile $number_of_steps $n_print_steps $n_threads
+
+##########################################################################################
+/bin/echo ##########################################################################################
+echo Now it is: `date`
+/bin/echo ##########################################################################################
+
